@@ -2,6 +2,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/*
+-Script for detecting if player is in shadow.
+-Author: Piotr Bartosz
+*/
+//All working.
 public class ShadowDetection : MonoBehaviour
 {
     public bool isInShadow;
@@ -26,8 +31,18 @@ public class ShadowDetection : MonoBehaviour
         lightLevel = 0f;
         for(int i =0; i<colors.Length;i++)
         {
-            lightLevel += ((0.2426f * colors[i].r) + (0.7152f * colors[i].g) + (0.0722f + colors[i].b));
+            lightLevel += ((0.2426f * colors[i].r) + (0.7152f * colors[i].g) + (0.0722f * colors[i].b));
         }
-        Debug.Log(lightLevel);
+        //Debug.Log(lightLevel);
+        if((lightLevel - 8557454f) >=0)
+        {
+            Debug.Log("in light");
+            isInShadow = false;
+        }
+        else
+        {
+            Debug.Log("in shadow");
+            isInShadow = true;
+        }
     }
 }
