@@ -34,7 +34,7 @@ public class ShadowDetection : MonoBehaviour
             lightLevel += ((0.2426f * colors[i].r) + (0.7152f * colors[i].g) + (0.0722f * colors[i].b));
         }
         //Debug.Log(lightLevel);
-        if((lightLevel - 8557454f) >=0)
+        if((lightLevel - 5500000f) >=0)
         {
             Debug.Log("in light");
             isInShadow = false;
