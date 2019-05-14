@@ -23,12 +23,11 @@ public class EnemyMovement : MonoBehaviour
     void Start()
     {
         agent = GetComponent<NavMeshAgent>();
-        agent.autoBraking = false;
+       // agent.autoBraking = false;
        // GotoNextPoint();
         
     }
-
-  
+ 
     void GotoNextPoint()
     {
         if (points.Length != 0)
@@ -38,11 +37,11 @@ public class EnemyMovement : MonoBehaviour
         }
     }
 
-// Update is called once per frame
     void Update()///////////zamienic na corutyne moze??
     {
         if (EnemyVision.canSee)
         {
+            Debug.Log("attack");
             StartAttack();
             wasAttacking = true;
         }
@@ -51,7 +50,6 @@ public class EnemyMovement : MonoBehaviour
             if (!agent.pathPending && agent.remainingDistance < 0.5f)
             {
                 GotoNextPoint();
-
             }
         }
         else
@@ -63,8 +61,8 @@ public class EnemyMovement : MonoBehaviour
 
     void StartAttack()
     {
-        if (attacking)
-        {
+        //if (attacking)
+        //{
             if(enemyType==0)
             {
                 if (Vector3.Distance(transform.position, player.position) >=2f)//mele
@@ -99,11 +97,11 @@ public class EnemyMovement : MonoBehaviour
                 }
             }
             
-        }
-        else
+        //}
+        /*else
         {
             attacking = true;
-        }
+        }*/
     }
 
    

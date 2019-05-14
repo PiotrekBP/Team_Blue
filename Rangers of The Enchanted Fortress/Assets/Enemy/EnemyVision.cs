@@ -17,20 +17,13 @@ public class EnemyVision : MonoBehaviour
     {
         if(Vector3.Distance(player.position, transform.position)<=viewRange&&!ShadowDetection.isInShadow)
         {
-            if (Mathf.Abs(Vector3.Angle(transform.forward, (transform.position - player.position)))<=viewAngle)
+            if (Mathf.Abs(Vector3.Angle(transform.forward, (transform.position - player.position))) >= viewAngle)
             {
                 canSee = true;
-                ////////////////niepotrzebne tylko do testow.
+
                 Debug.Log("yesssss");
-              //  Vector3 direction = (transform.position - player.position);
-            //    Quaternion lookRotation = Quaternion.LookRotation(direction);
-            //    transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, 0.08f);
-                /////////////////////////////////
             }
-            else
-            {
-                canSee = false;
-            }
+            
         }
         else
         {
