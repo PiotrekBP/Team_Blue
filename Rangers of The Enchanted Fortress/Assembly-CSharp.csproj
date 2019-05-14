@@ -63,6 +63,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Enemy\EnemyMovement.cs" />
+    <Compile Include="Assets\Enemy\EnemyVision.cs" />
+    <Compile Include="Assets\Enemy\LooktoPlayer.cs" />
+    <Compile Include="Assets\Scripts\CameraFollow.cs" />
+    <Compile Include="Assets\Scripts\LooktoMouse.cs" />
+    <Compile Include="Assets\Scripts\PlayerMovement.cs" />
     <Compile Include="Assets\Scripts\ShadowDetection.cs" />
     <Reference Include="Unity.Timeline.Editor">
       <HintPath>D:/TeamBlue/Team_Blue/Rangers of The Enchanted Fortress/Library/ScriptAssemblies/Unity.Timeline.Editor.dll</HintPath>

@@ -9,7 +9,7 @@ using UnityEngine;
 //All working.
 public class ShadowDetection : MonoBehaviour
 {
-    public bool isInShadow;
+    public static bool isInShadow;
     public RenderTexture lightInput;
     public float lightLevel;
     void Update()
