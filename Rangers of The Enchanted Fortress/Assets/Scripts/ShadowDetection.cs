@@ -9,9 +9,16 @@ using UnityEngine;
 //All working.
 public class ShadowDetection : MonoBehaviour
 {
+    private Animator animator;
     public static bool isInShadow;
     public RenderTexture lightInput;
     public float lightLevel;
+    private int counter=0;
+
+    void Start()
+    {
+        animator = transform.GetComponentInParent<Animator>();
+    }
     void Update()
     {
         RenderTexture tempTexture = RenderTexture.GetTemporary(lightInput.width, lightInput.height, 0, RenderTextureFormat.Default, RenderTextureReadWrite.Linear);
@@ -19,7 +26,7 @@ public class ShadowDetection : MonoBehaviour
         RenderTexture previous = RenderTexture.active;
         RenderTexture.active = tempTexture;
         Texture2D temp2DTexture = new Texture2D(lightInput.width, lightInput.height);
-        temp2DTexture.ReadPixels(new Rect(0,0,tempTexture.width, tempTexture.height),0,0);//////
+        temp2DTexture.ReadPixels(new Rect(0,0,tempTexture.width, tempTexture.height),0,0);
         temp2DTexture.Apply();
 
         RenderTexture.active = previous;
@@ -37,14 +44,40 @@ public class ShadowDetection : MonoBehaviour
         if((lightLevel - 5700000f) >=0)
         {
             Debug.Log("in light");
+            if(isInShadow)
+            {
+               // animator.SetTrigger("SlowBlindStart");   
+                StartCoroutine("DeathCountDown");
+                Debug.Log("start");
+            }
             isInShadow = false;
-            Debug.Log(lightLevel);
+            
         }
         else
         {
             Debug.Log("in shadow");
+            if(!isInShadow)
+            {
+                //stopanimation
+                //StopCoroutine("DeathCountDown");
+                //counter = 0;
+            }
             isInShadow = true;
 
         }
+    }
+
+    //Usunac i zamienic na petle time deltatime;
+    public IEnumerator DeathCountDown()
+    {
+        counter++;
+        Debug.Log(counter);
+        if(counter>=3)
+        {
+            Debug.Log("OutofTime");
+            //gameover;
+        }
+        Debug.Log("Works");
+        yield return null;//new WaitForSeconds(1);
     }
 }

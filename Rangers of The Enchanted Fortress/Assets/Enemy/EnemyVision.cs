@@ -20,8 +20,6 @@ public class EnemyVision : MonoBehaviour
             if (Mathf.Abs(Vector3.Angle(transform.forward, (transform.position - player.position))) >= viewAngle)
             {
                 canSee = true;
-
-                Debug.Log("yesssss");
             }
             
         }

@@ -5,6 +5,11 @@ using UnityEngine.AI;
 
 public class EnemyMovement : MonoBehaviour
 {
+    public GameObject arrowEmiter;
+    public GameObject arrow;
+    public float arrowForce;
+
+    public Transform lightToLit;
     public Transform[] points;
     private int destPoint = 0;
     private NavMeshAgent agent;
@@ -12,22 +17,27 @@ public class EnemyMovement : MonoBehaviour
     public static bool attacking;
     public static bool wasAttacking;
     public static bool wasSearching;
+    private bool isAttacking;
     private float searchTime = 0f;
     [SerializeField]
     private int enemyType;//0-mele 1-archer 2-mage
     private Vector3 nextSearch;
+    Animator animator;
+    private float attackTimer = 0f;
+    public bool lightCall = false;
 
-    
+
 
     // Start is called before the first frame update
     void Start()
     {
         agent = GetComponent<NavMeshAgent>();
-       // agent.autoBraking = false;
-       // GotoNextPoint();
-        
+        animator = GetComponentInChildren<Animator>();//getcomponent not in child it is only for test????
+        // agent.autoBraking = false;
+        // GotoNextPoint();
+
     }
- 
+
     void GotoNextPoint()
     {
         if (points.Length != 0)
@@ -45,11 +55,23 @@ public class EnemyMovement : MonoBehaviour
             StartAttack();
             wasAttacking = true;
         }
-        else if(!wasAttacking)
+        else if (!wasAttacking)
         {
             if (!agent.pathPending && agent.remainingDistance < 0.5f)
             {
                 GotoNextPoint();
+            }
+        }
+        else if(lightCall)
+        {
+            if(Vector3.Distance(transform.position, lightToLit.position) >= 2f)
+            {
+                agent.SetDestination(lightToLit.position);
+            }
+            else
+            {
+                lightCall = false;
+                SwingWeapon();
             }
         }
         else
@@ -61,61 +83,79 @@ public class EnemyMovement : MonoBehaviour
 
     void StartAttack()
     {
-        //if (attacking)
-        //{
-            if(enemyType==0)
+       
+        if (enemyType == 0)
+        {
+            if (Vector3.Distance(transform.position, player.position) >= 2f)//mele
             {
-                if (Vector3.Distance(transform.position, player.position) >=2f)//mele
-                {
-                    agent.SetDestination(player.position);
-                }
-                else
-                {
-                    SwingWeapon();
-                }
-            }
-            else if(enemyType==1)
-            {
-                if (Vector3.Distance(transform.position, player.position) >=7f)//archer
-                {
-                    agent.SetDestination(player.position);
-                }
-                else
-                {
-                    ShootArrow();
-                }
+                Debug.Log("attacking");
+                //Debug.Log(Vector3.Distance(transform.position, player.position));
+                agent.SetDestination(player.position);
             }
             else
             {
-                if (Vector3.Distance(transform.position, player.position) >=5f)//mage
-                {
-                    agent.SetDestination(player.position);
-                }
-                else
-                {
-                    UseMagic();
-                }
+                SwingWeapon();
             }
-            
-        //}
-        /*else
+        }
+        else if (enemyType == 1)
         {
-            attacking = true;
-        }*/
+            if (Vector3.Distance(transform.position, player.position) >= 7f)//archer
+            {
+                agent.SetDestination(player.position);
+            }
+            else
+            {
+                ShootArrow();
+            }
+        }
+        else
+        {
+            if (Vector3.Distance(transform.position, player.position) >= 5f)//mage
+            {
+                agent.SetDestination(player.position);
+            }
+            else
+            {
+                UseMagic();
+            }
+        }
+
+        
     }
 
-   
+
     //enemyattacks
-   
+
     void SwingWeapon()
     {
-        //trigger
+        attackTimer += Time.deltaTime;
+        if (!isAttacking)
+        {
+            isAttacking = true;
+            animator.SetTrigger("Swing");
+        }
+        else if (attackTimer >= 3f)
+        {
+            isAttacking = false;
+            attackTimer = 0f;
+        }
     }
 
     void ShootArrow()
     {
-        //trigger
-        //creating arrow
+        attackTimer += Time.deltaTime;
+        if (!isAttacking)
+        {
+            isAttacking = true;
+            animator.SetTrigger("Shoot");
+            CreateArrow();
+
+        }
+        else if (attackTimer >= 3f)
+        {
+            isAttacking = false;
+            attackTimer = 0f;
+        }
     }
 
     void UseMagic()
@@ -166,11 +206,44 @@ public class EnemyMovement : MonoBehaviour
         }
         else
         {
-                wasSearching = true;
-                nextSearch = transform.position;
-                nextSearch.x += 2f;
-                agent.SetDestination(nextSearch);                        
+            wasSearching = true;
+            nextSearch = transform.position;
+            nextSearch.x += 2f;
+            agent.SetDestination(nextSearch);
         }
 
     }
+
+    void OnTriggerEnter(Collider target)//dodac pierwszenstow strzal
+    {
+        if (isAttacking)
+        {
+            if (target.gameObject.layer == 9)
+            {
+                if (!target.GetComponent<CharacterController>())
+                {
+                    Debug.Log("Is not a player.");
+                    Debug.Log(target.name);
+                }
+                else
+                    Debug.Log("GameOver");
+            }
+            else if(target.gameObject.layer == 11)
+            {
+                //turnonlamp
+            }
+        }
+
+    }
+
+    void CreateArrow()
+    {
+        GameObject tempArrow;
+        tempArrow = Instantiate(arrow, arrowEmiter.transform.position, arrowEmiter.transform.rotation);
+        Rigidbody tempArrowRigidbody;
+        tempArrowRigidbody = tempArrow.GetComponent<Rigidbody>();
+        tempArrowRigidbody.AddForce(transform.forward * arrowForce);
+        Destroy(tempArrow, 10f);
+    }
+
 }

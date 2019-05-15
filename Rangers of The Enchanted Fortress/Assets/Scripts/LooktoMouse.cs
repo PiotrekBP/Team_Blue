@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -15,17 +16,20 @@ public class LooktoMouse : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        Ray ray = cam.ScreenPointToRay(Input.mousePosition); ;
-        RaycastHit hit;
+        float speed = 4.0f;
 
-        if (Physics.Raycast(ray, out hit))
+
+        var playerPlane = new Plane(Vector3.up, transform.position);
+        var ray = cam.ScreenPointToRay(Input.mousePosition);
+        float hitdist = 0.0f;
+
+        if (playerPlane.Raycast(ray, out hitdist))
         {
 
-            Vector3 target = hit.point;
-            target.y = 0;
-            target.y = transform.localScale.y / 2f;
+            var targetPoint = ray.GetPoint(hitdist);
+            var targetRotation = Quaternion.LookRotation(targetPoint - transform.position);
 
-            transform.LookAt(target);
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, speed * Time.deltaTime);
         }
     }
 }
