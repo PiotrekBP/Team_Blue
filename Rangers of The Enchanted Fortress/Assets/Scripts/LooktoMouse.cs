@@ -16,20 +16,23 @@ public class LooktoMouse : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        float speed = 4.0f;
-
-
-        var playerPlane = new Plane(Vector3.up, transform.position);
-        var ray = cam.ScreenPointToRay(Input.mousePosition);
-        float hitdist = 0.0f;
-
-        if (playerPlane.Raycast(ray, out hitdist))
+        if (!Menu.isInteracting)
         {
+            float speed = 4.0f;
 
-            var targetPoint = ray.GetPoint(hitdist);
-            var targetRotation = Quaternion.LookRotation(targetPoint - transform.position);
 
-            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, speed * Time.deltaTime);
+            var playerPlane = new Plane(Vector3.up, transform.position);
+            var ray = cam.ScreenPointToRay(Input.mousePosition);
+            float hitdist = 0.0f;
+
+            if (playerPlane.Raycast(ray, out hitdist))
+            {
+
+                var targetPoint = ray.GetPoint(hitdist);
+                var targetRotation = Quaternion.LookRotation(targetPoint - transform.position);
+
+                transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, speed * Time.deltaTime);
+            }
         }
     }
 }

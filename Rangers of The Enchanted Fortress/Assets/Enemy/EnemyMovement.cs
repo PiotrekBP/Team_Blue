@@ -5,6 +5,8 @@ using UnityEngine.AI;
 
 public class EnemyMovement : MonoBehaviour
 {
+    public SoundManager SA;
+    public AudioSource AS;
     public GameObject arrowEmiter;
     public GameObject arrow;
     public float arrowForce;
@@ -14,9 +16,9 @@ public class EnemyMovement : MonoBehaviour
     private int destPoint = 0;
     private NavMeshAgent agent;
     public Transform player;
-    public static bool attacking;
-    public static bool wasAttacking;
-    public static bool wasSearching;
+    public bool attacking;
+    public bool wasAttacking =false;
+    public bool wasSearching;
     private bool isAttacking;
     private float searchTime = 0f;
     [SerializeField]
@@ -25,12 +27,16 @@ public class EnemyMovement : MonoBehaviour
     Animator animator;
     private float attackTimer = 0f;
     public bool lightCall = false;
-
-
+    private bool willFire = false;
+    private bool willFireMage = false;
+    private float fireTimer = 0f;
+    private float MagefireTimer = 0f;
+    EnemyVision vis;
 
     // Start is called before the first frame update
     void Start()
     {
+        vis = GetComponent<EnemyVision>();
         agent = GetComponent<NavMeshAgent>();
         animator = GetComponentInChildren<Animator>();//getcomponent not in child it is only for test????
         // agent.autoBraking = false;
@@ -49,76 +55,136 @@ public class EnemyMovement : MonoBehaviour
 
     void Update()///////////zamienic na corutyne moze??
     {
-        if (EnemyVision.canSee)
+        if (!Menu.isInteracting)
         {
-            Debug.Log("attack");
-            StartAttack();
-            wasAttacking = true;
-        }
-        else if (!wasAttacking)
-        {
-            if (!agent.pathPending && agent.remainingDistance < 0.5f)
+
+            if (vis.canSee)
             {
-                GotoNextPoint();
+                StartAttack();
+                if(!wasAttacking)
+                    SA.PlayCombatMusic();
+                wasAttacking = true;
             }
-        }
-        else if(lightCall)
-        {
-            if(Vector3.Distance(transform.position, lightToLit.position) >= 2f)
+            else if (lightCall)
             {
-                agent.SetDestination(lightToLit.position);
+                if (Vector3.Distance(transform.position, lightToLit.position) >= 2f)
+                {
+                    agent.SetDestination(lightToLit.position);
+                }
+                else
+                {
+                    lightCall = false;
+                    SwingWeapon();
+                    isAttacking = false;
+                }
+            }
+            else if (!wasAttacking)
+            {
+                if (!agent.pathPending && agent.remainingDistance < 0.5f)
+                {
+                    agent.isStopped = false;
+                    animator.SetBool("Walk", true);
+                    GotoNextPoint();
+                }
             }
             else
             {
-                lightCall = false;
-                SwingWeapon();
+                agent.isStopped = false;
+                animator.SetBool("Walk", true);
+                SA.PlaySearchMusic();
+                StartSearch();
             }
-        }
-        else
-        {
-            StartSearch();
+            if (willFire)
+            {
+                fireTimer += Time.deltaTime;
+            }
+            if (fireTimer >= 0.45f)
+            {
+                GameObject tempArrow;
+                tempArrow = Instantiate(arrow, arrowEmiter.transform.position, arrowEmiter.transform.rotation);
+                //tempArrow.transform.Rotate(Vector3.left * 90);
+                Rigidbody tempArrowRigidbody;
+                tempArrowRigidbody = tempArrow.GetComponent<Rigidbody>();
+                tempArrowRigidbody.AddForce(transform.forward * arrowForce);
+                Destroy(tempArrow, 3f);
+                fireTimer = 0;
+                willFire = false;
+
+            }
+            if (willFireMage)
+            {
+                MagefireTimer += Time.deltaTime;
+            }
+            if (MagefireTimer >= 0.40f)
+            {
+                GameObject tempArrow;
+                tempArrow = Instantiate(arrow, arrowEmiter.transform.position, arrowEmiter.transform.rotation);
+                //tempArrow.transform.Rotate(Vector3.left * 90);
+                Rigidbody tempArrowRigidbody;
+                tempArrowRigidbody = tempArrow.GetComponent<Rigidbody>();
+                tempArrowRigidbody.AddForce(transform.forward * arrowForce);
+                Destroy(tempArrow, 0.5f);
+                MagefireTimer = 0;
+                willFireMage = false;
+
+            }
         }
     }
 
 
     void StartAttack()
     {
-       
+        
         if (enemyType == 0)
         {
-            if (Vector3.Distance(transform.position, player.position) >= 2f)//mele
+            if (Vector3.Distance(transform.position, player.position) >= 2.1f)//mele
             {
-                Debug.Log("attacking");
-                //Debug.Log(Vector3.Distance(transform.position, player.position));
+                animator.SetBool("Walk", true);
+                //Debug.Log("attacking");
                 agent.SetDestination(player.position);
             }
             else
             {
+
+                LookAtTarget();
+                agent.isStopped = true;
+                animator.SetBool("Walk", false);
                 SwingWeapon();
             }
         }
         else if (enemyType == 1)
         {
-            if (Vector3.Distance(transform.position, player.position) >= 7f)//archer
+            Debug.Log("Arch");
+            if (Vector3.Distance(transform.position, player.position) >= 10f)//archer
             {
                 agent.SetDestination(player.position);
+                animator.SetBool("Walk", true);
             }
             else
             {
+                LookAtTarget();
+                agent.isStopped = true;
+                animator.SetBool("Walk", false);
                 ShootArrow();
+                
             }
         }
-        else
+        else if(enemyType ==2)
         {
-            if (Vector3.Distance(transform.position, player.position) >= 5f)//mage
+            if (Vector3.Distance(transform.position, player.position) >= 6f)//mage
             {
                 agent.SetDestination(player.position);
+                animator.SetBool("Walk", true);
             }
             else
             {
-                UseMagic();
+                LookAtTarget();
+                agent.isStopped = true;
+                animator.SetBool("Walk", false);
+                ShootFire();
             }
         }
+
 
         
     }
@@ -131,6 +197,7 @@ public class EnemyMovement : MonoBehaviour
         attackTimer += Time.deltaTime;
         if (!isAttacking)
         {
+            SA.PlaySound("maczuga", AS);
             isAttacking = true;
             animator.SetTrigger("Swing");
         }
@@ -146,9 +213,10 @@ public class EnemyMovement : MonoBehaviour
         attackTimer += Time.deltaTime;
         if (!isAttacking)
         {
+            SA.PlaySound("bow_sfx", AS);
             isAttacking = true;
             animator.SetTrigger("Shoot");
-            CreateArrow();
+            willFire = true;
 
         }
         else if (attackTimer >= 3f)
@@ -157,12 +225,26 @@ public class EnemyMovement : MonoBehaviour
             attackTimer = 0f;
         }
     }
-
-    void UseMagic()
+    void ShootFire()
     {
-        //trigger
-        //magic???
+        attackTimer += Time.deltaTime;
+        if (!isAttacking)
+        {
+            SA.PlaySound("strzalognia_maga", AS);
+            isAttacking = true;
+            animator.SetTrigger("Shoot");
+            willFireMage = true;
+
+        }
+        else if (attackTimer >= 3f)
+        {
+            isAttacking = false;
+            attackTimer = 0f;
+        }
+
+
     }
+
 
     //
 
@@ -174,24 +256,33 @@ public class EnemyMovement : MonoBehaviour
             searchTime += Time.deltaTime;
             if (searchTime >= 0 && searchTime < 2)
             {
+                agent.isStopped = true;
                 transform.Rotate(Vector3.up, (searchTime - 4) / 2 * 0.4f);
+                animator.SetBool("Walk", false);
             }
             else if (searchTime >= 2 && searchTime < 4)
             {
+                agent.isStopped = false;
                 nextSearch = transform.position;
                 nextSearch.x += 2f;
                 agent.SetDestination(nextSearch);
+                animator.SetBool("Walk", true);
             }
             else if (searchTime >= 4 && searchTime < 6)
             {
+                agent.isStopped = true;
+                animator.SetBool("Walk", false);
                 transform.Rotate(Vector3.up, (searchTime - 4) / 2 * 0.4f);
             }
             else if (searchTime >= 6 && searchTime < 8)
             {
+                animator.SetBool("Walk", false);
                 transform.Rotate(Vector3.up, (searchTime - 4) / 2 * -0.4f);
             }
             else if (searchTime >= 8 && searchTime < 10)
             {
+                agent.isStopped = false;
+                animator.SetBool("Walk", true);
                 nextSearch = transform.position;
                 nextSearch.z += 2f;
                 agent.SetDestination(nextSearch);
@@ -201,49 +292,28 @@ public class EnemyMovement : MonoBehaviour
                 wasSearching = false;
                 wasAttacking = false;
                 searchTime = 0f;
+                SA.PlayCalmMusic();
 
             }
         }
         else
         {
+            animator.SetBool("Walk", true);
             wasSearching = true;
             nextSearch = transform.position;
             nextSearch.x += 2f;
             agent.SetDestination(nextSearch);
         }
+        
 
     }
-
-    void OnTriggerEnter(Collider target)//dodac pierwszenstow strzal
+    void LookAtTarget()
     {
-        if (isAttacking)
-        {
-            if (target.gameObject.layer == 9)
-            {
-                if (!target.GetComponent<CharacterController>())
-                {
-                    Debug.Log("Is not a player.");
-                    Debug.Log(target.name);
-                }
-                else
-                    Debug.Log("GameOver");
-            }
-            else if(target.gameObject.layer == 11)
-            {
-                //turnonlamp
-            }
-        }
-
+        Vector3 direction = (player.position - transform.position).normalized;
+        Quaternion lookRotation = Quaternion.LookRotation(direction);
+        transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * 5);
     }
+   
 
-    void CreateArrow()
-    {
-        GameObject tempArrow;
-        tempArrow = Instantiate(arrow, arrowEmiter.transform.position, arrowEmiter.transform.rotation);
-        Rigidbody tempArrowRigidbody;
-        tempArrowRigidbody = tempArrow.GetComponent<Rigidbody>();
-        tempArrowRigidbody.AddForce(transform.forward * arrowForce);
-        Destroy(tempArrow, 10f);
-    }
 
 }

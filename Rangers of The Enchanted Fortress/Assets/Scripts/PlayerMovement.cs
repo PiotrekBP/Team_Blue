@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
+    public SoundManager SA;
+    public AudioSource AS;
     CharacterController characterController;
     public Animator animator;
 
@@ -11,8 +13,10 @@ public class PlayerMovement : MonoBehaviour
     public float jumpSpeed = 8.0f;
     public float gravity = 20.0f;
 
-    private Vector3 moveDirection = Vector3.zero;
+    private Vector3 inputVector = Vector3.zero;
     private Vector3 temp;
+    private Vector3 moveDirection;
+    private bool playingm = false;
 
     void Start()
     {
@@ -22,30 +26,46 @@ public class PlayerMovement : MonoBehaviour
 
     void Update()
     {
-        if (characterController.isGrounded)
+
+        if (!Menu.isInteracting)
         {
-            // We are grounded, so recalculate
-            // move direction directly from axes
+            if (characterController.isGrounded)
+            {
+                // We are grounded, so recalculate
+                // move direction directly from axes
 
-            moveDirection = new Vector3(Input.GetAxis("Horizontal"), 0.0f, Input.GetAxis("Vertical"));
-            moveDirection *= speed;
-            if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.D))
-            {
-                animator.SetBool("isWalk", true);
+                inputVector = new Vector3(Input.GetAxis("Horizontal"), 0.0f, Input.GetAxis("Vertical"));
+                moveDirection = Quaternion.AngleAxis(-45, Vector3.up) * inputVector;
+                moveDirection *= speed;
+                if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.D))
+                {
+                    animator.SetBool("isWalk", true);
+                    AS.volume = 0.5f;
+                    if(!playingm)
+                    {
+                        AS.loop = true;
+                        SA.PlaySound("player_move_loop", AS);
+                        playingm = true;
+                    }
+                    
+                }
+                else
+                {
+                    AS.loop = false;
+                    animator.SetBool("isWalk", false);
+                    playingm = false;
+                    SA.StopSound(AS);
+                }
             }
-            else
-            {
-                animator.SetBool("isWalk", false);
-            }
+
+            // Apply gravity. Gravity is multiplied by deltaTime twice (once here, and once below
+            // when the moveDirection is multiplied by deltaTime). This is because gravity should be applied
+            // as an acceleration (ms^-2)
+            moveDirection.y -= gravity * Time.deltaTime;
+
+            // Move the controller
+            characterController.Move(moveDirection * Time.deltaTime);
         }
-
-        // Apply gravity. Gravity is multiplied by deltaTime twice (once here, and once below
-        // when the moveDirection is multiplied by deltaTime). This is because gravity should be applied
-        // as an acceleration (ms^-2)
-        moveDirection.y -= gravity * Time.deltaTime;
-
-        // Move the controller
-        characterController.Move(moveDirection * Time.deltaTime);
     }
 }
 

@@ -1,100 +1,132 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class PlayerShoot : MonoBehaviour
 {
-    private bool isAttacking=false;
-    private float attackCooldown=0f;
+    public SoundManager SA;
+    public AudioSource AS;
+    public Collider platrig;
+    private bool isAttacking = false;
+    private float attackCooldown = 0f;
     private bool isStabbing = false;
     public Animator animator;
-    // Start is called before the first frame update
-    //Drag in the Bullet Emitter from the Component Inspector.
     public GameObject Bullet_Emitter;
-    public GameObject Attack_Emitter;
-
-    //Drag in the Bullet Prefab from the Component Inspector.
     public GameObject Bullet;
-    public GameObject Attack;
-
-    //Enter the Speed of the Bullet from the Component Inspector.
-    public float Bullet_Forward_Force=300f;
+    public ParticleSystem mainParticleSystem;
+    public float Bullet_Forward_Force = 2f;
     public float AttackForward = 30f;
-    MeshCollider colliderArms;
-    // Use this for initialization
+    private float fireTimer = 0;
+    private bool willShoot = false;
     void Start()
     {
         animator = GetComponent<Animator>();
-        //colliderArms = GetComponentInChildren<MeshCollider>();
+        platrig.enabled = false;
     }
 
-    // Update is called once per frame
     void Update()
     {
-        if (Input.GetMouseButton(1))
+
+        if (!Menu.isInteracting)
         {
-            //The Bullet instantiation happens here.
-            GameObject Temporary_Bullet_Handler;
-            Temporary_Bullet_Handler = Instantiate(Bullet, Bullet_Emitter.transform.position, Bullet_Emitter.transform.rotation) as GameObject;
-
-            //Sometimes bullets may appear rotated incorrectly due to the way its pivot was set from the original modeling package.
-            //This is EASILY corrected here, you might have to rotate it from a different axis and or angle based on your particular mesh.
-            Temporary_Bullet_Handler.transform.Rotate(Vector3.left * 90);
-
-            //Retrieve the Rigidbody component from the instantiated Bullet and control it.
-            Rigidbody Temporary_RigidBody;
-            Temporary_RigidBody = Temporary_Bullet_Handler.GetComponent<Rigidbody>();
-
-            //Tell the bullet to be "pushed" forward by an amount set by Bullet_Forward_Force.
-            Temporary_RigidBody.AddForce(transform.forward * Bullet_Forward_Force);
-
-            //Basic Clean Up, set the Bullets to self destruct after 10 Seconds, I am being VERY generous here, normally 3 seconds is plenty.
-            Destroy(Temporary_Bullet_Handler, 0.4f);
-            
-        }
-        if (ShadowDetection.isInShadow)
-        {
-            if (Input.GetMouseButton(0))
+            if (ShadowDetection.isInShadow)
             {
-                isStabbing = true;
+                if (Input.GetMouseButtonUp(1))
+                {
+                    willShoot = true;
+                    animator.SetTrigger("PShoot");
+
+
+                }
+            }
+            if (ShadowDetection.isInShadow)
+            {
+                if (Input.GetMouseButton(0))
+                {
+
+                    isStabbing = true;
+
+                }
+            }
+
+            if (isStabbing)
+            {
+                attackCooldown += Time.deltaTime;
+                if (!isAttacking)
+                {
+                    AS.volume = 0.5f;
+                    SA.PlaySound("stabbnocolision_sfx", AS);
+                    animator.SetTrigger("Stab");
+                    isAttacking = true;
+                    platrig.enabled = true;
+                    // StartCoroutine(WaitColl1(platrig));
+                    StartCoroutine(WaitColl2(platrig));
+
+
+                }
+                else if (attackCooldown >= 1.5f)
+                {
+                    isAttacking = false;
+                    attackCooldown = 0f;
+                    isStabbing = false;
+
+                }
+            }
+            if (willShoot)
+            {
+                fireTimer += Time.deltaTime;
+            }
+            if (fireTimer >= 0.45f)
+            {
+                AS.volume = 0.5f;
+                SA.PlaySound("shoot3_sfx", AS);
+                GameObject Temporary_Bullet_Handler;
+                Temporary_Bullet_Handler = Instantiate(Bullet, Bullet_Emitter.transform.position, Bullet_Emitter.transform.rotation) as GameObject;
+                Temporary_Bullet_Handler.transform.Rotate(Vector3.left * 90);
+                Rigidbody Temporary_RigidBody;
+                Temporary_RigidBody = Temporary_Bullet_Handler.GetComponent<Rigidbody>();
+                Temporary_RigidBody.AddForce(transform.forward * Bullet_Forward_Force);
+                Destroy(Temporary_Bullet_Handler, 0.4f);
+                willShoot = false;
+                fireTimer = 0;
+
             }
         }
-
-        if(isStabbing)
-        {           
-            attackCooldown += Time.deltaTime;
-            if (!isAttacking)
-            {
-                //colliderArms.enabled = true;
-                animator.SetTrigger("Stab");
-                
-                isAttacking = true;
-            }
-            else if (attackCooldown >= 1.5f)
-            {
-               // colliderArms.enabled = false;
-                isAttacking = false;
-                attackCooldown = 0f;
-                isStabbing = false;
-                
-            }
-        }
-
     }
 
-    void OnTriggerEnter(Collider target)//dodac pierwszenstwo strzal
+    void OnTriggerEnter(Collider target)
     {
         if (isAttacking)
         {
             if (target.gameObject.layer == 10)
             {
-                Debug.Log("Kill");//Destroy(target);
+                Debug.Log("Kill");
+                Animator tani = target.GetComponent<Animator>();
+                Light tlig = target.GetComponentInChildren<Light>();
+                tlig.enabled = false;
+                tani.SetTrigger("Dead");
+                StartCoroutine(Wait(target.gameObject));
+
+
             }
-            else if (target.gameObject.layer == 11)
-            {
-                //turnofflamp
-                
-            }
+
         }
     }
+
+    IEnumerator Wait(GameObject target)
+    {
+        AS.volume = 0.5f;
+        SA.PlaySound("cma_death", AS);
+        yield return new WaitForSeconds(1f);
+        Destroy(target);
+    }
+    IEnumerator WaitColl2(Collider coll)
+    {
+
+        yield return new WaitForSeconds(0.65f);
+        coll.enabled = false;
+    }
+
+
 }

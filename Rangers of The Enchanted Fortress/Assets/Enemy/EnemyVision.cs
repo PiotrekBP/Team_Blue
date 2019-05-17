@@ -7,7 +7,7 @@ public class EnemyVision : MonoBehaviour
     public Transform player;
     public float viewRange;
     public float viewAngle;
-    public static bool canSee;
+    public bool canSee=false;
     private float distanceToPlayer;
     void Start()
     {
@@ -15,18 +15,20 @@ public class EnemyVision : MonoBehaviour
     }
     void Update()
     {
-        if(Vector3.Distance(player.position, transform.position)<=viewRange&&!ShadowDetection.isInShadow)
+        if (!Menu.isInteracting)
         {
-            if (Mathf.Abs(Vector3.Angle(transform.forward, (transform.position - player.position))) >= viewAngle)
+            if (Vector3.Distance(player.position, transform.position) <= viewRange && !ShadowDetection.isInShadow)
             {
-                canSee = true;
+                if (Mathf.Abs(Vector3.Angle(transform.forward, (transform.position - player.position))) >= viewAngle)
+                {
+                    canSee = true;
+                }
+
             }
-            
+            else
+            {
+                canSee = false;
+            }
         }
-        else
-        {
-            canSee = false;
-        }
-        
     }
 }

@@ -1,14 +1,14 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-/*
+
 public class LampCall : MonoBehaviour
 {
     public List<GameObject> Enemies;//only type 0!!!
     public bool litUp {
         set {
             if (value != _litUp)
-            {
+            { 
                 _litUp = value;
                 OnLitChange();
             }
@@ -30,13 +30,12 @@ public class LampCall : MonoBehaviour
                     {
                         closest = x;
                     }
-
                 }
                 EnemyMovement script = closest.GetComponent<EnemyMovement>();
                 script.lightToLit = transform;
                 script.lightCall = true;
             }
         }
-    }    
+    }  
+    
 }
-*/

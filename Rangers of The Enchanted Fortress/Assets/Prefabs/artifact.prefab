@@ -11,8 +11,11 @@ GameObject:
   - component: {fileID: 4284405946616176999}
   - component: {fileID: 5057052262139943761}
   - component: {fileID: 1518499596276606888}
+  - component: {fileID: 1751325781107951410}
+  - component: {fileID: 1962302959367156158}
+  - component: {fileID: 3988517277293111257}
   m_Layer: 0
-  m_Name: artefact_Low
+  m_Name: artifact
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -25,9 +28,9 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 949728847399883636}
-  m_LocalRotation: {x: 0.00000008146034, y: 0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 6.364, y: 2.8, z: -1.72}
-  m_LocalScale: {x: 73.829575, y: 73.829575, z: 73.829575}
+  m_LocalScale: {x: 601.1128, y: 601.11304, z: 601.1128}
   m_Children:
   - {fileID: 9083743186273710758}
   m_Father: {fileID: 0}
@@ -78,6 +81,43 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+--- !u!114 &1751325781107951410
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 949728847399883636}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 18a76e2cf3d865643be13d20d3ed9882, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1962302959367156158
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 949728847399883636}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: edefc2dc49353bb47829dde94130b440, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!65 &3988517277293111257
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 949728847399883636}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 0.03, y: 0.03, z: 0.03}
+  m_Center: {x: -2.3283063e-10, y: -0.00009972887, z: -0.000015884403}
 --- !u!1 &9083743186273710753
 GameObject:
   m_ObjectHideFlags: 0
@@ -119,9 +159,9 @@ Light:
   m_Enabled: 1
   serializedVersion: 9
   m_Type: 2
-  m_Color: {r: 1, g: 1, b: 0.5882353, a: 1}
-  m_Intensity: 10
-  m_Range: 10
+  m_Color: {r: 1, g: 0.5245338, b: 0.32549024, a: 1}
+  m_Intensity: 49
+  m_Range: 15.69
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
   m_CookieSize: 10
