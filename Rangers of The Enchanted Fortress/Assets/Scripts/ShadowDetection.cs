@@ -9,26 +9,31 @@ using UnityEngine;
 //All working.
 public class ShadowDetection : MonoBehaviour
 {
+    public Reloader reload;
+    public bool GM = false;
     public GameObject wincan;
     public SoundManager SA;
     public AudioSource AS;
     public AudioSource BG1;
     public AudioSource BG2;
     public AudioSource BG3;
-    public static bool Die = false;
-    public static bool Win = false;
+    public static bool Die;
+    public static bool Win;
     public Animator Blind;
     public Animator Death;
     private Animator animator;
-    public static bool isInShadow = true;
+    public static bool isInShadow;
     public RenderTexture lightInput;
     public float lightLevel;
-    private float counter=0;
+    private float counter = 0;
     private bool aplying = false;
 
     void Start()
     {
-        animator = transform.GetComponentInParent<Animator>();
+        Die = false;
+        isInShadow = true;
+        Win = false;
+    animator = transform.GetComponentInParent<Animator>();
     }
     void Update()
     {
@@ -40,20 +45,24 @@ public class ShadowDetection : MonoBehaviour
             }
             if (Die)
             {
-                
-                SA.StopSound(BG1);
-                SA.StopSound(BG2);
-                SA.StopSound(BG3);
-                SA.PlaySound("main_death_sfx",AS);
-                Debug.Log("Death");
-                Blind.SetTrigger("Death");
-                Death.SetTrigger("Death");
-                StartCoroutine(WaitSec());
+
+
+                if (!GM)
+                {
+                    SA.StopSound(BG1);
+                    SA.StopSound(BG2);
+                    SA.StopSound(BG3);
+                    SA.PlaySound("main_death_sfx", AS);
+                   // Debug.Log("Death");
+                    Blind.SetTrigger("Death");
+                    Death.SetTrigger("Death");
+                    StartCoroutine(WaitSec());
+                }
                 Die = false;
             }
             if (Win)
             {
-                
+
                 SA.StopSound(BG1);
                 SA.StopSound(BG2);
                 SA.StopSound(BG3);
@@ -62,7 +71,7 @@ public class ShadowDetection : MonoBehaviour
                 wincan.SetActive(true);
                 StartCoroutine(Wait3Sec());
                 Win = false;
-                Debug.Log("Win");
+               // Debug.Log("Win");
             }
             RenderTexture tempTexture = RenderTexture.GetTemporary(lightInput.width, lightInput.height, 0, RenderTextureFormat.Default, RenderTextureReadWrite.Linear);
             Graphics.Blit(lightInput, tempTexture);
@@ -86,7 +95,7 @@ public class ShadowDetection : MonoBehaviour
 
             if ((lightLevel - 5700000f) >= 0)
             {
-                Debug.Log("in light");
+                //Debug.Log("in light");
                 if (isInShadow)
                 {
                     Blind.SetTrigger("Blin");
@@ -103,7 +112,7 @@ public class ShadowDetection : MonoBehaviour
             }
             else
             {
-                Debug.Log("in shadow");
+               // Debug.Log("in shadow");
                 if (!isInShadow)
                 {
                     //stopanimation
@@ -120,14 +129,20 @@ public class ShadowDetection : MonoBehaviour
         IEnumerator WaitSec()
         {
             yield return new WaitForSeconds(1f);
-            //reload Scene
+            reload.Reload();
 
         }
         IEnumerator Wait3Sec()
         {
             yield return new WaitForSeconds(1f);
-            //reload Scene
+            reload.Reload();
 
         }
     }
+    public void GMA()
+    {
+        GM = !GM;
+       // Debug.Log(GM);
+    }
 }
+

@@ -13,6 +13,14 @@ public class Menu : MonoBehaviour
     public static bool goToWin = false;
     public static bool isInteracting = true;
 
+    void Start()
+    {
+        goToMenu = false;
+        goToIntro = false;
+        goToWin = false;
+        isInteracting = true;
+    }
+
     void Update()
     {
         if (goToMenu)
@@ -40,6 +48,10 @@ public class Menu : MonoBehaviour
             goToWin = false;
 
         }
+    }
+    public void Skip()
+    {
+        isInteracting = false;
     }
 
 }

@@ -6,9 +6,11 @@ public class TODO : MonoBehaviour
 {
    /*
     ReLoad
-    muzyka w menu
     build
-    cutscenka na endwin;
+    cutscenka na end win; //sciagnac //dodac muzyke plik fight
+    poprawic death enemy kawalek (dzwiek)// pozniej
+
+
 
      
      

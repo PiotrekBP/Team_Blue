@@ -75,6 +75,7 @@
     <Compile Include="Assets\Scripts\OnPlay.cs" />
     <Compile Include="Assets\Scripts\PlayerMovement.cs" />
     <Compile Include="Assets\Scripts\PlayerShoot.cs" />
+    <Compile Include="Assets\Scripts\Reloader.cs" />
     <Compile Include="Assets\Scripts\ShadowDetection.cs" />
     <Compile Include="Assets\Scripts\ShadowFlame.cs" />
     <Compile Include="Assets\Scripts\Waypoint.cs" />

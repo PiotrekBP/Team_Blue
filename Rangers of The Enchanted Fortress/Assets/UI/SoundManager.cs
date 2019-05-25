@@ -30,6 +30,10 @@ public class SoundManager : MonoBehaviour
     private float pitch = 1f;
     public bool play;
     public bool playCalm;
+    public void vSkip()
+    {
+        PlayerCharacterSourceCalm.volume = 0.5f;
+    }
 
     [SerializeField]
     private Sound[] sounds;
@@ -40,8 +44,8 @@ public class SoundManager : MonoBehaviour
     private GameObject PlayerCharacterSoundCollider;
     [SerializeField]
     private AudioSource PlayerCharacterSourceCombat;
-    [SerializeField]
-    private AudioSource PlayerCharacterSourceCalm;
+    
+    public AudioSource PlayerCharacterSourceCalm;
     [SerializeField]
     private AudioSource PlayerCharacterSourceSearch;
     [SerializeField]
@@ -162,7 +166,7 @@ public class SoundManager : MonoBehaviour
             }
         }
     }
-    private static IEnumerator FadeOut(AudioSource audioSourceIn, AudioSource audioSourceOut, float FadeTime)
+    private IEnumerator FadeOut(AudioSource audioSourceIn, AudioSource audioSourceOut, float FadeTime)
     {
         float startVolume = 1;
 
